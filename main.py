@@ -296,8 +296,13 @@ class GroupGuardianPlugin(Star):
     @filter.on_llm_request()
     async def on_llm_request(self, event: AstrMessageEvent, *args):
         """在 LLM 处理前拦截，用于 AI 冲突检测和刷屏检测"""
-        if not event.group_id:
-            return
+    if event.is_private_chat():
+        return
+    
+    group_id = event.get_session_id()
+    
+    # 或者更安全地，用 getattr 兜底
+    # group_id = getattr(event, 'group_id', None) or event.get_session_id()
         
         await self._ensure_loaded()
         
